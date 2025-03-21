@@ -26,11 +26,30 @@
         <!-- Aquí se imprimirán los resultados obtenidos tras ejecutar el modelo -->
     </div>
     
-    <!-- Código JavaScript para acceder a la cámara trasera del móvil y mostrar el stream en el elemento video -->
+    <!-- Código JavaScript para acceder a la cámara trasera del móvil,
+         cargar MobileNet y clasificar continuamente las imágenes del stream -->
     <script>
         // Obtiene el elemento de video
         const videoElement = document.getElementById('video');
-        
+        const resultadosContainer = document.getElementById('resultados');
+
+        // Función para clasificar el contenido del video usando MobileNet
+        const clasificarVideo = (model) => {
+            model.classify(videoElement)
+                .then(predictions => {
+                    // Muestra las predicciones en el contenedor de resultados
+                    resultadosContainer.innerHTML = predictions
+                        .map(p => `${p.className} - ${(p.probability * 100).toFixed(2)}%`)
+                        .join('<br>');
+                    // Vuelve a clasificar en el siguiente frame
+                    requestAnimationFrame(() => clasificarVideo(model));
+                })
+                .catch(error => {
+                    console.error('Error al clasificar la imagen:', error);
+                    requestAnimationFrame(() => clasificarVideo(model));
+                });
+        };
+
         // Verifica que la API getUserMedia esté disponible
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
             // Solicita acceso a la cámara trasera del dispositivo móvil
@@ -41,6 +60,14 @@
                 // Asigna el stream de la cámara al elemento de video
                 videoElement.srcObject = stream;
                 videoElement.play();
+
+                // Carga el modelo MobileNet y empieza la clasificación
+                mobilenet.load().then(model => {
+                    clasificarVideo(model);
+                })
+                .catch(error => {
+                    console.error('Error al cargar MobileNet:', error);
+                });
             })
             .catch(error => {
                 console.error('No se pudo acceder a la cámara:', error);
