@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Define la codificación de caracteres -->
+    <meta charset="UTF-8">
+    <!-- Configura el viewport para dispositivos móviles -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Título de la página -->
+    <title>Documento HTML5 Básico</title>
+</head>
+<body>
+    <!-- Importa la librería TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <!-- Importa el modelo MobileNet de TensorFlow -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/mobilenet"></script>
+    
+    <!-- Elemento de video para capturar o reproducir video
+         Se añade el atributo "playsinline" para evitar que el video se reproduzca a pantalla completa en iOS -->
+    <video id="video" width="640" height="480" controls autoplay muted playsinline>
+        <!-- Mensaje alternativo si el navegador no soporta el elemento video -->
+        Tu navegador no soporta el elemento video.
+    </video>
+    
+    <!-- Contenedor para mostrar los resultados del modelo MobileNet -->
+    <div id="resultados">
+        <!-- Aquí se imprimirán los resultados obtenidos tras ejecutar el modelo -->
+    </div>
+    
+    <!-- Código JavaScript para acceder a la cámara trasera del móvil y mostrar el stream en el elemento video -->
+    <script>
+        // Obtiene el elemento de video
+        const videoElement = document.getElementById('video');
+        
+        // Verifica que la API getUserMedia esté disponible
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            // Solicita acceso a la cámara trasera del dispositivo móvil
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' }
+            })
+            .then(stream => {
+                // Asigna el stream de la cámara al elemento de video
+                videoElement.srcObject = stream;
+                videoElement.play();
+            })
+            .catch(error => {
+                console.error('No se pudo acceder a la cámara:', error);
+            });
+        } else {
+            alert('getUserMedia no es soportado por tu navegador.');
+        }
+    </script>
+</body>
+</html>
